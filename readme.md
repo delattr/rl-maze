@@ -1,5 +1,5 @@
 # Reinforcement Learning: Solve a Maze
-This application solves a maze uisng Q-learing algorithme.
+This application solves a maze uisng Q-learning algorithme.
 
 Maze is randomly generated each time.
 
