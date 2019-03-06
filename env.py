@@ -21,6 +21,7 @@ class Env:
         visited_cells = set()
         unvisited_cells = set()
         stack = []
+
         # Generate initial cell blocks for auto generation:
         for y in range(0,self.size):          # TILE == maximum number of sprites for y-axis
             line =[]
@@ -34,10 +35,7 @@ class Env:
                     line.append(self.block)
             self.structure.append(line)
 
-        #create unvisited cells
-
         # The depth-first search algorithm of maze generation implemented using backtracking:
-
         # Make the initial cell the current cell and mark it as visited
         current_cell = (1,1)
 
@@ -80,29 +78,34 @@ class Env:
                 last_cell = stack.pop()
                 # Make it the current cell
                 current_cell = last_cell
-            self.structure[0][1] = 's'
-            self.structure[-2][-1] = 'e'
-        self.wall = []
+
+        # Set start and exit
+        self.structure[0][1] = 's'
+        self.structure[-2][-1] = 'e'
+        # Defin position of wall and corridor cells
         for i in range(self.size):
             for j in range(self.size):
                 if self.structure[i][j] == 'x':
                     self.wall.append((i,j))
-    def reset(self):
+                elif self.structure[i][j] == 'o':
+                    self.corridor.append((i,j))
 
+    # Initialize state and reward
+    def reset(self):
+        self.total_reward = 0
         reward = 0
         done = False
+        state = 1
 
         # Set position of player, exit, and guard, items
         self.player_position = self.start
-        state = 1
-        # Copy self.item_place to self.items
-
 
         return state, reward, done
 
+    # Find next state and reward
     def move(self, action):
         self.action = action
-        reward = -1
+        reward = 0
         done = False
 
         row = self.player_position[0]
@@ -134,9 +137,9 @@ class Env:
 
         self.player_position = next_position
 
-        # Negative reward for hitting the wall
+        # Negative reward for hitting a wall
         if next_position in self.wall:
-            reward = -0.5
+            reward = -.5
             self.player_position = current_position
 
 
@@ -173,6 +176,8 @@ class Env:
                                      self.start[0]*SPRITE_SIZE))
         self.window.blit(exit_door,(self.end[1]*SPRITE_SIZE,\
                                     self.end[0]*SPRITE_SIZE))
+        # for i in self.items:
+        #     self.window.blit(ether, (i[1]*SPRITE_SIZE,i[0]*SPRITE_SIZE))
 
         row = 0
         for i in self.structure:
@@ -187,6 +192,3 @@ class Env:
 
         self.window.blit(macgyver,(self.player_position[1]*SPRITE_SIZE,\
                                    self.player_position[0]*SPRITE_SIZE))
-
-
-env = Env()

@@ -26,7 +26,7 @@ pygame.display.flip()
 actions = [0,1,2,3]
 Q = np.zeros((TILE*TILE,len(actions)))
 episodes = 400
-gamma = 0.99
+gamma = 0.9
 lr = .85
 rList = []
 for i in range(episodes):
@@ -34,21 +34,28 @@ for i in range(episodes):
     action = None
     rAll = 0
     while not done:
+        # elipson-greedy
         e = 1.0 / ((i//100)+1)
         if np.random.rand(1) < e:
             action = random.choice(actions)
         else:
             action = np.argmax(Q[state, :])
+
+        # Greedy
         # action = np.argmax(Q[state, :]+ np.random.randn(1,4) / (i + 1))
+
+        # Render pygame
+        # maze.render(window)
+        # pygame.display.flip()
+        # pygame.time.Clock()
 
         new_state, reward, done = maze.move(action) # return new_state, reward, done
         # Update Q table
         Q[state, action] = (1-lr)*Q[state,action] + lr*(reward + gamma * np.max(Q[new_state, :]))
         # Upadate state
         state = new_state
-
+        # Accumulate rewards
         rAll += reward
-
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -56,15 +63,14 @@ for i in range(episodes):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     sys.exit()
-
+    rList.append(rAll)
     print(i+1,'/', episodes, 'Accumulated Reward:', rAll)
 
-
-    rList.append(rAll)
-print("Success rate:" + str(sum(rList)/episodes))
 print("Final Q-Table Values")
 print(Q)
 plt.plot(rList)
+plt.xlabel("Episodes")
+plt.ylabel("Accumulated rewards")
 plt.show()
 
 while True:
